@@ -396,6 +396,8 @@
             border: 1px dashed rgba(255,255,255,0.1);
         }
     </style>
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
 </head>
 
 <body>
@@ -653,16 +655,56 @@
             hero.innerHTML = slidesHTML + dotsHTML;
         }
 
-        // 수익화(Monetization) & 권한 체크 로직 (예시)
+        // 수익화(Monetization) & PayPal 결제 로직
+        window.isPremiumUser = false;
+        let pendingUrl = '';
+
         function checkPremiumAndRedirect(event, url) {
-            // 실제 서비스 시엔 Firebase Auth & DB 조회 후 PayPal 결제 연동
-            const isPremium = false; // 현재 로그인 안 함 상태라고 가정
-            if (!isPremium) {
-                event.preventDefault(); // 다이렉트 이동 막기
-                alert("🔒 프리미엄 회원 전용 기능입니다! \n(여기서 PayPal 결제 팝업이나 Firebase 로그인 창이 뜹니다.)");
-                // 실제 연동 시: window.location.href = '/checkout' 
+            if (!window.isPremiumUser) {
+                if(event) {
+                    event.preventDefault(); // 다이렉트 이동 막기
+                }
+                pendingUrl = url;
+                document.getElementById('premiumModal').classList.add('show');
             } else {
                 // 정상적으로 넘어감
+            }
+        }
+
+        function closePremiumModal() {
+            document.getElementById('premiumModal').classList.remove('show');
+        }
+
+        function initPayPal() {
+            if(window.paypal && document.getElementById('paypal-button-container').innerHTML === '') {
+                paypal.Buttons({
+                    createOrder: function(data, actions) {
+                        return actions.order.create({
+                            purchase_units: [{
+                                amount: {
+                                    value: '9.99' // 1개월 프리미엄 패스 요금
+                                },
+                                description: 'OTT Master Premium Pass (1 Month)'
+                            }]
+                        });
+                    },
+                    onApprove: function(data, actions) {
+                        return actions.order.capture().then(function(details) {
+                            alert('결제가 완료되었습니다, ' + details.payer.name.given_name + '님! 프리미엄 콘텐츠를 즐겨보세요.');
+                            closePremiumModal();
+                            window.isPremiumUser = true;
+
+                            if (pendingUrl && pendingUrl !== '#') {
+                                window.open(pendingUrl, '_blank');
+                                pendingUrl = '';
+                            }
+                        });
+                    },
+                    onError: function(err) {
+                        console.error('PayPal Error:', err);
+                        alert('결제 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                    }
+                }).render('#paypal-button-container');
             }
         }
 
@@ -753,6 +795,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initApp();
+            
+            // 모달 열릴 때 PayPal 로드용 이벤트 방어 로직 제거
+            initPayPal();
 
             // 검색 바 이벤트 리스너 추가
             const searchInput = document.getElementById('searchInput');
@@ -776,6 +821,34 @@
             <div id="modalProviders" class="modal-providers">
                 <!-- OTT icons will be loaded here -->
             </div>
+        </div>
+    </div>
+
+    <!-- Premium Pass Modal -->
+    <div id="premiumModal" class="ott-modal">
+        <div class="ott-modal-content" style="max-width: 420px; padding: 40px; background: rgba(20, 20, 25, 0.95); backdrop-filter: blur(25px); border: 1px solid rgba(223, 142, 255, 0.2);">
+            <span class="close-modal" onclick="closePremiumModal()">&times;</span>
+            <h2 style="margin-top: 0; font-weight: 900; font-size: 2rem; color: var(--text-main); letter-spacing: -1px;">
+                OTT <span style="color: var(--primary);">MASTER</span><br>PREMIUM PASS
+            </h2>
+            <p style="color: var(--text-dim); line-height: 1.6; margin-bottom: 25px;">
+                무제한 4K 스트리밍과 글로벌 동시 방영작을<br>
+                광고 없이 즐기세요.
+            </p>
+            
+            <div style="background: rgba(223, 142, 255, 0.05); border: 1px solid rgba(223, 142, 255, 0.3); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
+                <h3 style="margin: 0 0 10px 0; color: var(--text-dim); font-size: 1rem; font-weight: 500;">프리미엄 1개월 이용권</h3>
+                <h1 style="margin: 0; font-size: 3rem; color: var(--primary); font-weight: 800;">$9.99</h1>
+            </div>
+
+            <div id="paypal-button-container" style="min-height: 150px; display: flex; align-items:center; justify-content:center;">
+                <!-- PayPal Buttons Rendered Here -->
+            </div>
+            
+            <p style="color: #666; font-size: 0.8rem; margin-top: 20px;">
+                * 안전한 페이팔(PayPal) 체크아웃을 통해 결제됩니다.<br>
+                결제 시 테스트 계정으로 진행 시 실제 요금이 청구되지 않습니다.
+            </p>
         </div>
     </div>
 
