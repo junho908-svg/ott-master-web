@@ -457,19 +457,19 @@
                 title: "장상사: 영원한 그리움",
                 overview: "인간과 신족, 요족이 공존하는 시대, 온갖 고난을 겪고 세상을 떠돌며 의원이 되어 살아가는 신녀의 장대한 서사.",
                 backdrop: "movie_poster_fantasy_1775098328061.png",
-                tag: "#MUST WATCH NOW"
+                tag: "MUST WATCH NOW"
             },
             {
                 title: "더 글로리",
                 overview: "유년 시절 폭력으로 영혼까지 부서진 한 여자가 온 생을 걸어 치밀하게 준비한 처절한 복수와 그 소용돌이에 빠져드는 이들의 이야기",
                 backdrop: "movie_poster_glory_1775098311820.png",
-                tag: "#NETFLIX ORIGINAL"
+                tag: "NETFLIX ORIGINAL"
             },
             {
                 title: "창란결: 불멸의 인연",
                 overview: "삼계를 혼돈에 빠뜨렸던 동방청창은 식란족 신녀 난화의 몸에 깃들게 된다. 절대 악과 순수한 선이 만나며 벌어지는 기적 같은 판타지 로맨스.",
                 backdrop: "ott_master_hero_poster_1775050936800.png",
-                tag: "#인기 급상승 중드"
+                tag: "인기 급상승 중드"
             }
         ];
 
@@ -487,17 +487,17 @@
                         const validHeroItems = heroData.results.filter(item => item.backdrop_path);
                         mockSlides = validHeroItems.slice(0, 5).map(item => {
                             // 원산지에 따라 태그 동적 할당
-                            let dynamicTag = "#Trending 실시간";
+                            let dynamicTag = "Trending 실시간";
                             let searchPrefix = "인기";
                             
                             if (item.origin_country && item.origin_country.includes("KR")) {
-                                dynamicTag = "#K-드라마 실시간 인기작";
+                                dynamicTag = "K-드라마 실시간 인기작";
                                 searchPrefix = "한국 드라마";
                             } else if (item.origin_country && item.origin_country.includes("CN")) {
-                                dynamicTag = "#중드 실시간 인기작";
+                                dynamicTag = "중드 실시간 인기작";
                                 searchPrefix = "중국 드라마";
                             } else if (item.origin_country && item.origin_country.includes("US")) {
-                                dynamicTag = "#미드 실시간 인기작";
+                                dynamicTag = "미드 실시간 인기작";
                                 searchPrefix = "미국 드라마";
                             }
 
@@ -588,7 +588,7 @@
                 }
                 
                 const tagColorClass = type === 'cdrama' ? 'tag cdrama' : 'tag';
-                const mainTagText = type === 'cdrama' ? '#중드 전용관 가기' : '#K-드라마';
+                const mainTagText = type === 'cdrama' ? '중드 전용관 가기' : 'K-드라마';
                 
                 // 태그별 커스텀 검색 링크
                 const mainTagLink = type === 'cdrama' ? 'cdrama_hub.html' : `${baseUrl}${encodeURIComponent('한국 드라마')}`;
