@@ -304,6 +304,97 @@
             width: 60px;
             filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
         }
+
+        /* --- Provider Modal --- */
+        .ott-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+        }
+        .ott-modal.show {
+            display: flex;
+        }
+        .ott-modal-content {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            width: 85%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+            animation: modalFadeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: var(--glass-blur);
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 32px;
+            font-weight: 300;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .close-modal:hover {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        .modal-providers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            padding-bottom: 10px;
+        }
+        .provider-icon-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            cursor: pointer;
+        }
+        .provider-icon-wrapper:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(223, 142, 255, 0.2);
+        }
+        .provider-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        .provider-empty {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
     </style>
 </head>
 
@@ -503,16 +594,20 @@
                 const mainTagLink = type === 'cdrama' ? 'cdrama_hub.html' : `${baseUrl}${encodeURIComponent('한국 드라마')}`;
                 const trendingTagLink = type === 'cdrama' ? 'cdrama_hub.html' : `${baseUrl}${encodeURIComponent('인기')}`;
 
+                let onClickAttr = type === 'cdrama' ? '' : `onclick="showProviders(event, ${item.id}, 'tv', '${title.replace(/'/g, "\\'")}')"`;
+                let aHref = type === 'cdrama' ? 'cdrama_hub.html' : '#';
+                let aTarget = type === 'cdrama' ? '_self' : '';
+
                 return `
                 <div class="card">
-                    <a href="${type === 'cdrama' ? 'cdrama_hub.html' : mainLink}" target="${type === 'cdrama' ? '_self' : '_blank'}" ${type === 'cdrama' ? '' : 'onclick="checkPremiumAndRedirect(event, this.href)"'} class="card-img-wrapper">
+                    <a href="${aHref}" target="${aTarget}" ${onClickAttr} class="card-img-wrapper">
                         <img src="${imgUrl}" alt="${title}" style="object-position: top; width: 100%; height: 320px; object-fit: cover;">
                         <div class="card-overlay">
                             <p>${item.overview ? item.overview : '줄거리 정보가 제공되지 않았습니다.'}</p>
                         </div>
                     </a>
                     <div class="card-info">
-                        <a href="${type === 'cdrama' ? 'cdrama_hub.html' : mainLink}" target="${type === 'cdrama' ? '_self' : '_blank'}" ${type === 'cdrama' ? '' : 'onclick="checkPremiumAndRedirect(event, this.href)"'} style="text-decoration: none; color: inherit;">
+                        <a href="${aHref}" target="${aTarget}" ${onClickAttr} style="text-decoration: none; color: inherit;">
                             <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${title}">${title}</h4>
                         </a>
                         <div style="display: flex; gap: 8px;">
@@ -576,6 +671,76 @@
             updateSlide();
         }
 
+        async function showProviders(event, id, mediaType, title) {
+            if(event) event.preventDefault();
+            
+            const modal = document.getElementById('ottModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalProviders = document.getElementById('modalProviders');
+            
+            modal.classList.add('show');
+            modalTitle.innerHTML = `'${title}'<br><span style="font-size:0.95rem; color:var(--text-dim); font-weight:500;">시청 가능한 OTT 찾는 중... ⏳</span>`;
+            modalProviders.innerHTML = '';
+
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/watch/providers?api_key=${TMDB_API_KEY}`);
+                const data = await res.json();
+                
+                // KR(한국) 기준 데이터 확인
+                const krData = data.results && data.results.KR ? data.results.KR : null;
+                
+                let providersHtml = '';
+                
+                if (krData && (krData.flatrate || krData.buy || krData.rent || krData.free)) {
+                    modalTitle.innerHTML = `'${title}'<br><span style="font-size:0.95rem; color:var(--primary); font-weight:500;">지금 바로 시청 가능한 곳 🍿</span>`;
+                    
+                    // 중복 제거용 집합
+                    const seen = new Set();
+                    const allProviders = [...(krData.flatrate || []), ...(krData.free || []), ...(krData.rent || []), ...(krData.buy || [])];
+                    
+                    allProviders.forEach(p => {
+                        if (!seen.has(p.provider_name)) {
+                            seen.add(p.provider_name);
+                            // TMDB에서 제공하는 상세 시청 안내 페이지로 링크
+                            const tmdbLink = krData.link; 
+                            providersHtml += `
+                                <a href="${tmdbLink}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)" style="text-decoration:none;">
+                                    <div class="provider-icon-wrapper">
+                                        <img src="https://image.tmdb.org/t/p/w200${p.logo_path}" alt="${p.provider_name}" class="provider-icon" title="${p.provider_name}">
+                                        <div style="font-size: 0.70rem; margin-top: 8px; color: var(--text-main); font-weight:600; text-align:center;">${p.provider_name}</div>
+                                    </div>
+                                </a>
+                            `;
+                        }
+                    });
+                    
+                    modalProviders.innerHTML = providersHtml;
+                } else {
+                    modalTitle.innerHTML = `'${title}'`;
+                    modalProviders.innerHTML = '<div class="provider-empty">앗! 현재 한국에서 공식적으로 스트리밍 중인 OTT 서비스가 없네요. 🥲<br><br><span style="font-size:0.8rem;">(해외 VPN을 사용하거나 다른 인생작을 검색해 보세요)</span></div>';
+                }
+            } catch(e) {
+                console.error(e);
+                modalTitle.innerHTML = `'${title}'`;
+                modalProviders.innerHTML = '<div class="provider-empty">데이터를 불러오는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</div>';
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('ottModal');
+            if(modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        // 모달 바깥 배경 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('ottModal');
+            if (event.target === modal) {
+                modal.classList.remove('show');
+            }
+        }
+
         function updateSlide() {
             const slides = document.querySelectorAll('.slide');
             const dots = document.querySelectorAll('.dot');
@@ -603,6 +768,17 @@
             }
         });
     </script>
+    <!-- OTT Provider Modal -->
+    <div id="ottModal" class="ott-modal">
+        <div class="ott-modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle" style="margin-top: 10px; font-weight: 800; font-size: 1.4rem;">OTT 제공 여부 확인 중...</h3>
+            <div id="modalProviders" class="modal-providers">
+                <!-- OTT icons will be loaded here -->
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
