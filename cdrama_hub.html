@@ -41,11 +41,21 @@
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--primary);
-            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            height: 50px;
             text-decoration: none;
+        }
+        .logo img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+        .logo .hub-title {
+            font-size: 1rem;
+            color: #fff;
+            font-weight: 400;
+            margin-left: 10px;
         }
 
         .hero-slider {
@@ -236,7 +246,10 @@
 <body>
 
     <header>
-        <a href="index.html" class="logo">OTT MASTER <span style="font-size: 1rem; color: #fff; font-weight: 400;">/ C-Drama Hub</span></a>
+        <a href="index.html" class="logo">
+            <img src="assets/dong_a_logo.png" alt="Dong-A OTT MASTER">
+            <span class="hub-title">/ C-Drama Hub</span>
+        </a>
         <div>
             <a href="index.html" style="color: white; text-decoration: none; font-weight: 700;">&larr; 홈으로 돌아가기</a>
         </div>

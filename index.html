@@ -42,10 +42,14 @@
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--primary);
-            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            height: 50px;
+        }
+        .logo img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
         }
 
         .search-bar {
@@ -403,7 +407,9 @@
 <body>
 
     <header>
-        <div class="logo">OTT MASTER</div>
+        <div class="logo">
+            <img src="assets/dong_a_logo.png" alt="Dong-A OTT MASTER">
+        </div>
         <div class="search-bar">
             <span>🔍</span>
             <input type="text" id="searchInput" placeholder="인생작을 검색해 보세요 (예: 더 글로리, 장야 ...)">
@@ -432,7 +438,7 @@
                 <span style="font-size: 22px; font-weight: 900; color: #ff005a; display: flex; align-items: center; justify-content: center; height: 100%; letter-spacing: -1.5px;">WATCHA</span>
             </a>
             <a href="https://www.coupangplay.com/" target="_blank" style="text-decoration: none;" class="ott-item">
-                <span style="font-size: 20px; font-weight: 700; color: #00aaff; display: flex; align-items: center; justify-content: center; height: 100%; letter-spacing: -0.5px; text-align: center;">Coupang<br>Play</span>
+                <img src="assets/coupang_play_logo_official_style_1775106165753.png" alt="Coupang Play" style="width: 80%; height: 80%; object-fit: contain;">
             </a>
             <a href="https://www.iq.com/" target="_blank" style="text-decoration: none;" class="ott-item">
                 <span style="font-size: 26px; font-weight: 800; color: #00dc2c; display: flex; align-items: center; justify-content: center; height: 100%;">i<span style="color: white; margin-left: 1px;">QIYI</span></span>
