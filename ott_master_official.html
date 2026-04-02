@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Best Practices -->
+    <title>OTT MASTER - 전 세계 OTT 통합 검색 & 중국 드라마 추천</title>
+    <meta name="description" content="넷플릭스부터 아이치이(iQIYI)까지! 중드 팬들을 위한 최신 인기 중국 드라마 리스트와 전 세계 OTT 플랫폼을 한눈에 검색하세요.">
+    <meta name="keywords" content="OTT 검색, 중국 드라마 추천, 중드 무협, 넷플릭스 추천, 아이치이, 위티비, OTT MASTER">
+    <meta property="og:title" content="OTT MASTER - 프리미엄 시네마틱 큐레이션">
+    <meta property="og:description" content="인생작을 만나는 가장 빠른 방법. 지금 바로 검색해 보세요.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80">
+    
+    <style>
+        /* (기존 스타일 상속)... */
+        /* --- Hero Slider (Carousel) --- */
+        .hero-slider {
+            height: 75vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+            background-blend-mode: multiply;
+            background-color: rgba(14, 14, 17, 0.4);
+        }
+        .slide.active { opacity: 1; z-index: 1; }
+        
+        .slide-content h1 { font-size: 4.5rem; margin: 0; letter-spacing: -3px; line-height: 1; font-weight: 900; color: white; }
+        .slide-content p { font-size: 1.4rem; color: #ddd; max-width: 700px; margin-top: 25px; }
+        
+        .slider-dots {
+            position: absolute; bottom: 40px; right: 10%; z-index: 10;
+            display: flex; gap: 10px;
+        }
+        .dot { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .dot.active { background: var(--primary); width: 60px; }
+    </style>
+
+    /* --- HTML 구조 변경 --- */
+    <div id="hero" class="hero-slider">
+        <!-- Slides will be injected here by JS -->
+        <div class="slider-dots" id="sliderDots"></div>
+    </div>
+
+    /* --- JS 로직 고도화 --- */
+    <script>
+        // API 설정... (중략)
+        let currentSlide = 0;
+        let slidesData = [];
+
+        async function initApp() {
+            if (API_KEY === "여기에_본인의_TMDB_API_키를_입력하세요") {
+                alert("브라우저에서 정상 작동하려면 코드 상단의 API_KEY를 먼저 입력해 주세요! 🫡");
+                return;
+            }
+            
+            showLoading(true);
+            await loadHeroSlider(); // 1. 상단 슬라이더 로드
+            await loadTrendingCdrama();
+            await loadTrendingGlobal();
+            showLoading(false);
+        }
+
+        async function loadHeroSlider() {
+            const data = await fetchAPI('/trending/all/day');
+            slidesData = data.results.slice(0, 5);
+            renderSlider();
+            startAutoSlider();
+        }
+
+        function renderSlider() {
+            const hero = document.getElementById('hero');
+            const dotsContainer = document.getElementById('sliderDots');
+            
+            hero.innerHTML = `
+                ${slidesData.map((item, idx) => `
+                    <div class="slide ${idx === 0 ? 'active' : ''}" 
+                         style="background-image: linear-gradient(to right, rgba(14,14,17,0.9), transparent), url('https://image.tmdb.org/t/p/original${item.backdrop_path}')">
+                        <div class="slide-content">
+                            <span class="tag" style="background: var(--secondary); color: black; margin-bottom: 20px;">MUST WATCH NOW</span>
+                            <h1>${item.title || item.name}</h1>
+                            <p>${item.overview ? item.overview.slice(0, 150) + '...' : '당신이 기다려온 최고의 영상미, 지금 바로 OTT 마스터에서 확인하세요.'}</p>
+                            <div style="margin-top: 30px;">
+                                <a href="https://www.netflix.com/search?q=${item.title || item.name}" target="_blank" 
+                                   style="background: var(--primary); color: black; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1rem;">지금 시청하기</a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+                <div class="slider-dots" id="sliderDots">
+                    ${slidesData.map((_, idx) => `<div class="dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide(${idx})"></div>`).join('')}
+                </div>
+            `;
+        }
+
+        function startAutoSlider() {
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % slidesData.length;
+                updateSlide();
+            }, 6000);
+        }
+
+        function goToSlide(idx) {
+            currentSlide = idx;
+            updateSlide();
+        }
+
+        function updateSlide() {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+        }
+        
+        // ... (기존 loadTrendingCdrama, loadTrendingGlobal 등 유지)
+    </script>
+</body>
+</html>

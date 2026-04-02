@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C-Drama Hub - OTT MASTER</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-color: #0e0e11;
+            --primary: #ff8db2; /* 중드 전용 핑크/마젠타 */
+            --secondary: #00e3fd;
+            --surface: rgba(255, 255, 255, 0.05);
+            --glass-blur: blur(25px);
+            --text-main: #f0edf1;
+            --text-dim: #acaaae;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Pretendard', sans-serif;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 90%;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(14, 14, 17, 0.8) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: -1px;
+            text-decoration: none;
+        }
+
+        .hero-slider {
+            height: 60vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: top center;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 5%;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(14, 14, 17, 0.6) 0%, var(--bg-color) 100%), linear-gradient(to right, rgba(14, 14, 17, 0.9) 0%, transparent 100%);
+            z-index: 0;
+        }
+
+        .slide.active { opacity: 1; z-index: 1; }
+        .slide-content { position: relative; z-index: 2; }
+        .slide-content h1 { font-size: 4rem; margin: 0; font-weight: 900; color: white; }
+        .slide-content p { font-size: 1.1rem; color: var(--text-dim); max-width: 600px; margin-top: 15px; }
+
+        .container { padding: 50px 5%; }
+        .section-title {
+            font-size: 1.8rem; font-weight: 800; margin-bottom: 30px; display: flex; align-items: center;
+        }
+        .section-title::before {
+            content: ""; width: 6px; height: 30px; background: var(--primary); margin-right: 15px; border-radius: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            backdrop-filter: var(--glass-blur);
+        }
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(255, 141, 178, 0.15);
+        }
+        .card img { width: 100%; height: 280px; object-fit: cover; object-position: top; }
+        .card-info { padding: 15px; }
+        .card-info h4 { margin: 0 0 8px 0; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .tag {
+            background: rgba(255, 141, 178, 0.15);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 141, 178, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <a href="ott_master_v3_final.html" class="logo">OTT MASTER <span style="font-size: 1rem; color: #fff; font-weight: 400;">/ C-Drama Hub</span></a>
+        <div>
+            <a href="ott_master_v3_final.html" style="color: white; text-decoration: none; font-weight: 700;">&larr; 홈으로 돌아가기</a>
+        </div>
+    </header>
+
+    <div id="hero" class="hero-slider">
+        <!-- Hero Slides Injected Here -->
+    </div>
+
+    <div class="container">
+        <div class="section-title">✨ 무협 / 선협 / 판타지 (고장극)</div>
+        <div id="fantasy-grid" class="grid"></div>
+
+        <div class="section-title">💕 로맨스 / 청춘 (현대극)</div>
+        <div id="romance-grid" class="grid"></div>
+
+        <div class="section-title">🗡 추리 / 범죄 / 미스터리</div>
+        <div id="mystery-grid" class="grid"></div>
+    </div>
+
+    <footer style="padding: 40px 5%; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: var(--text-dim); font-size: 0.9rem;">
+        &copy; 2026 OTT MASTER - C-Drama Hub. Produced by Mango special agent.
+    </footer>
+
+    <script>
+        const TMDB_API_KEY = "081adf5e23f22ccc0cfd852dde315657";
+        let heroSlides = [];
+        let currentSlide = 0;
+
+        // 한자 감지 및 영어 제목 병합 유틸리티 함수
+        const isChinese = (str) => /[\u4e00-\u9fa5]/.test(str);
+
+        async function fetchMergedData(urlBase) {
+            const resKO = await fetch(`${urlBase}&language=ko-KR`);
+            const dataKO = await resKO.json();
+
+            const resEN = await fetch(`${urlBase}&language=en-US`);
+            const dataEN = await resEN.json();
+
+            return dataKO.results.map((item, idx) => {
+                const enItem = dataEN.results && dataEN.results[idx] ? dataEN.results[idx] : item;
+                let finalTitle = item.name || item.title;
+                let enTitle = enItem.name || enItem.title;
+
+                if (isChinese(finalTitle) && enTitle && !isChinese(enTitle)) {
+                    finalTitle = `${finalTitle} (${enTitle})`;
+                }
+                return { ...item, mergedTitle: finalTitle };
+            }).filter(item => item.poster_path);
+        }
+
+        async function initHub() {
+            try {
+                // 1. 중국 드라마 최신 트렌딩 (Hero용)
+                const heroData = await fetchMergedData(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=zh&sort_by=popularity.desc&page=1`);
+                
+                heroSlides = heroData.filter(item => item.backdrop_path).slice(0, 5).map(item => ({
+                    title: item.mergedTitle,
+                    overview: item.overview || "설명이 준비되지 않았습니다.",
+                    backdrop: `https://image.tmdb.org/t/p/original${item.backdrop_path}`,
+                    nameOnly: item.name || item.title
+                }));
+
+                renderHero();
+
+                // 2. 장르별 중국 드라마 가져오기
+                // 판타지/무협: 장르코드 10765, 10759
+                const fantasyData = await fetchMergedData(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=zh&with_genres=10765,10759&sort_by=popularity.desc&page=1`);
+                renderGrid('fantasy-grid', fantasyData.slice(0, 6));
+
+                // 로맨스: 장르코드 18(Drama), 10766(Soap) - TMDB에서 보통 중드 로맨스는 이 쪽에 매핑됨
+                const romanceData = await fetchMergedData(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=zh&with_genres=18,10766&sort_by=popularity.desc&page=1`);
+                renderGrid('romance-grid', romanceData.slice(0, 6));
+
+                // 미스터리/범죄: 9648(Mystery), 80(Crime)
+                const mysteryData = await fetchMergedData(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=zh&with_genres=9648,80&sort_by=popularity.desc&page=1`);
+                renderGrid('mystery-grid', mysteryData.slice(0, 6));
+
+            } catch (e) {
+                console.error("데이터 로딩 실패:", e);
+            }
+        }
+
+        function renderHero() {
+            const hero = document.getElementById('hero');
+            if (heroSlides.length === 0) return;
+
+            let html = heroSlides.map((item, idx) => {
+                const iqiyiLink = `https://www.iq.com/search?query=${encodeURIComponent(item.nameOnly)}`;
+                return `
+                <div class="slide ${idx === 0 ? 'active' : ''}" style="background-image: url('${item.backdrop}'); z-index: ${idx === 0 ? 1 : 0};">
+                    <div class="slide-content">
+                        <span class="tag" style="margin-bottom: 15px; display: inline-block;">#아이치이 인기검색</span>
+                        <h1>${item.title}</h1>
+                        <p>${item.overview}</p>
+                        <div style="margin-top: 20px;">
+                            <a href="${iqiyiLink}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)"
+                               style="background: var(--primary); color: #fff; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1rem; display: inline-block; transition: 0.3s;" 
+                               onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';">iQIYI 바로가기</a>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            hero.innerHTML = html;
+
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % heroSlides.length;
+                const slides = document.querySelectorAll('.slide');
+                slides.forEach((s, i) => {
+                    s.classList.toggle('active', i === currentSlide);
+                    s.style.zIndex = i === currentSlide ? 1 : 0;
+                });
+            }, 5000);
+        }
+
+        function renderGrid(containerId, items) {
+            const container = document.getElementById(containerId);
+            if (!container || !items) return;
+
+            let html = items.map(item => {
+                const imgUrl = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+                const searchName = item.name || item.title;
+                const link = `https://www.iq.com/search?query=${encodeURIComponent(searchName)}`;
+
+                return `
+                <div class="card">
+                    <a href="${link}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)">
+                        <img src="${imgUrl}" alt="${item.mergedTitle}">
+                    </a>
+                    <div class="card-info">
+                        <a href="${link}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)" style="text-decoration: none; color: inherit;">
+                            <h4 title="${item.mergedTitle}">${item.mergedTitle}</h4>
+                        </a>
+                        <span class="tag">#아이치이</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function checkPremiumAndRedirect(event, url) {
+            const isPremium = false; 
+            if (!isPremium) {
+                event.preventDefault();
+                alert("🔒 프리미엄 회원 전용 기능입니다! \n(여기서 PayPal 결제 팝업이나 Firebase 로그인 창이 뜹니다.)");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initHub);
+    </script>
+</body>
+</html>

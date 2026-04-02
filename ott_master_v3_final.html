@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTT MASTER - Obsidian Glass Edition</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-color: #0e0e11;
+            --primary: #df8eff;
+            --secondary: #00e3fd;
+            --surface: rgba(255, 255, 255, 0.05);
+            --glass-blur: blur(25px);
+            --text-main: #f0edf1;
+            --text-dim: #acaaae;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Pretendard', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- Header & Nav --- */
+        header {
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 90%;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(14, 14, 17, 0.8) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+        .search-bar {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 12px 25px;
+            width: 400px;
+            backdrop-filter: var(--glass-blur);
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+            font-size: 1rem;
+        }
+
+        /* --- Hero Slider (Carousel) --- */
+        .hero-slider {
+            height: 80vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: top center; /* 얼굴이 잘리지 않도록 상단 맞춤 */
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 5%;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(14, 14, 17, 0.3) 0%, var(--bg-color) 100%), linear-gradient(to right, rgba(14, 14, 17, 0.9) 0%, transparent 100%);
+            z-index: 0;
+        }
+
+        .slide.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .slide-content h1 {
+            font-size: 4.5rem;
+            margin: 0;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            font-weight: 900;
+            color: white;
+        }
+
+        .slide-content p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 40px;
+            right: 5%;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 40px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: var(--primary);
+            width: 60px;
+        }
+
+        /* --- Content Sections --- */
+        .container {
+            padding: 50px 5%;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: "";
+            width: 6px;
+            height: 30px;
+            background: var(--primary);
+            margin-right: 15px;
+            border-radius: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+        }
+
+        /* --- Glass Cards --- */
+        .card {
+            background: var(--surface);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(223, 142, 255, 0.15);
+        }
+
+        .card img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+        }
+
+        .card-info {
+            padding: 20px;
+        }
+
+        .card-info h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .tag {
+            background: rgba(223, 142, 255, 0.15);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid rgba(223, 142, 255, 0.3);
+        }
+
+        .tag.cdrama {
+            color: #ff8db2;
+            border-color: rgba(255, 141, 178, 0.3);
+            background: rgba(255, 141, 178, 0.1);
+        }
+
+        /* --- OTT Bar --- */
+        .ott-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 50px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+        }
+
+        .ott-item {
+            min-width: 120px;
+            height: 120px;
+            background: var(--surface);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+
+        .ott-item:hover {
+            border-color: var(--secondary);
+            background: rgba(0, 227, 253, 0.1);
+        }
+
+        .ott-item img {
+            width: 60px;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">OTT MASTER</div>
+        <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" placeholder="인생작을 검색해 보세요 (예: 더 글로리, 장야 ...)">
+        </div>
+        <div style="width: 50px;"></div> <!-- Spacer -->
+    </header>
+
+    <div id="hero" class="hero-slider">
+        <!-- JS will inject slides here -->
+    </div>
+
+    <div class="container">
+
+        <div class="section-title">지원하는 OTT 서비스</div>
+        <div class="ott-bar">
+            <a href="https://www.netflix.com/kr/" target="_blank" style="text-decoration: none;" class="ott-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix">
+            </a>
+            <a href="https://www.tving.com/" target="_blank" style="text-decoration: none;" class="ott-item">
+                <span style="font-size: 26px; font-weight: 900; font-style: italic; color: #ff153c; display: flex; align-items: center; justify-content: center; height: 100%; letter-spacing: -1px;">TVING</span>
+            </a>
+            <a href="https://www.iq.com/" target="_blank" style="text-decoration: none;" class="ott-item">
+                <span style="font-size: 26px; font-weight: 800; color: #00dc2c; display: flex; align-items: center; justify-content: center; height: 100%;">i<span style="color: white; margin-left: 1px;">QIYI</span></span>
+            </a>
+            <a href="https://www.disneyplus.com/" target="_blank" style="text-decoration: none;" class="ott-item">
+                <span style="font-size: 24px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; height: 100%; letter-spacing: -1px; font-family: 'Avenir', sans-serif;">Disney+</span>
+            </a>
+        </div>
+
+        <div class="section-title">실시간 인기 중국 드라마</div>
+        <div id="cdrama-grid" class="grid">
+            <!-- JS will inject Chinese dramas here -->
+        </div>
+
+        <div style="margin-top: 80px;" class="section-title">실시간 인기 K-콘텐츠</div>
+        <div id="kdrama-grid" class="grid">
+            <!-- JS will inject K-dramas here -->
+        </div>
+
+    </div>
+
+    <footer
+        style="padding: 50px 5%; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: var(--text-dim); font-size: 0.9rem;">
+        &copy; 2026 OTT MASTER - MZ Trend Obsidian Edition. Produced by Mango special agent.
+    </footer>
+
+    <script>
+        // ▼▼▼ 여기에 발급받은 TMDB API Key를 넣으면 실시간 데이터로 교체됨 ▼▼▼
+        const TMDB_API_KEY = "081adf5e23f22ccc0cfd852dde315657";
+
+        let mockSlides = [
+            {
+                title: "장상사: 영원한 그리움",
+                overview: "인간과 신족, 요족이 공존하는 시대, 온갖 고난을 겪고 세상을 떠돌며 의원이 되어 살아가는 신녀의 장대한 서사.",
+                backdrop: "movie_poster_fantasy_1775098328061.png",
+                tag: "#MUST WATCH NOW"
+            },
+            {
+                title: "더 글로리",
+                overview: "유년 시절 폭력으로 영혼까지 부서진 한 여자가 온 생을 걸어 치밀하게 준비한 처절한 복수와 그 소용돌이에 빠져드는 이들의 이야기",
+                backdrop: "movie_poster_glory_1775098311820.png",
+                tag: "#NETFLIX ORIGINAL"
+            },
+            {
+                title: "창란결: 불멸의 인연",
+                overview: "삼계를 혼돈에 빠뜨렸던 동방청창은 식란족 신녀 난화의 몸에 깃들게 된다. 절대 악과 순수한 선이 만나며 벌어지는 기적 같은 판타지 로맨스.",
+                backdrop: "ott_master_hero_poster_1775050936800.png",
+                tag: "#인기 급상승 중드"
+            }
+        ];
+
+        let currentSlide = 0;
+
+        async function initApp() {
+            // TMDB API 연동 로직
+            if (TMDB_API_KEY !== "여기에_본인의_TMDB_API_키를_입력하세요") {
+                try {
+                    // 1. 히어로 슬라이드 데이터 가져오기 (실시간 TV 트렌딩)
+                    const heroRes = await fetch(`https://api.themoviedb.org/3/trending/tv/day?api_key=${TMDB_API_KEY}&language=ko-KR`);
+                    const heroData = await heroRes.json();
+                    if (heroData.results && heroData.results.length > 0) {
+                        // 배경 이미지가 존재하는 콘텐츠만 필터링
+                        const validHeroItems = heroData.results.filter(item => item.backdrop_path);
+                        mockSlides = validHeroItems.slice(0, 5).map(item => {
+                            // 원산지에 따라 태그 동적 할당
+                            let dynamicTag = "#Trending 실시간";
+                            let searchPrefix = "인기";
+                            
+                            if (item.origin_country && item.origin_country.includes("KR")) {
+                                dynamicTag = "#K-드라마 실시간 인기작";
+                                searchPrefix = "한국 드라마";
+                            } else if (item.origin_country && item.origin_country.includes("CN")) {
+                                dynamicTag = "#중드 실시간 인기작";
+                                searchPrefix = "중국 드라마";
+                            } else if (item.origin_country && item.origin_country.includes("US")) {
+                                dynamicTag = "#미드 실시간 인기작";
+                                searchPrefix = "미국 드라마";
+                            }
+
+                            return {
+                                title: item.title || item.name,
+                                overview: item.overview || "설명이 준비되지 않았습니다.",
+                                backdrop: `https://image.tmdb.org/t/p/original${item.backdrop_path}`,
+                                tag: dynamicTag,
+                                searchPrefix: searchPrefix,
+                                id: item.id
+                            };
+                        });
+                    }
+                    
+                    // 2. 중국 드라마 및 한국 드라마 동적 가져오기
+                    await fetchAndRenderGrids();
+                    
+                } catch (e) {
+                    console.error("API 연동 오류, 기본 템플릿 사용:", e);
+                }
+            }
+
+            renderSlider();
+
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % mockSlides.length;
+                updateSlide();
+            }, 6000);
+        }
+
+        async function fetchAndRenderGrids() {
+            try {
+                // 실시간 인기 중국 드라마 (한국어 & 영어 병합 요청)
+                const cResKO = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=zh&sort_by=popularity.desc&page=1&language=ko-KR`);
+                const cDataKO = await cResKO.json();
+                
+                const cResEN = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=zh&sort_by=popularity.desc&page=1&language=en-US`);
+                const cDataEN = await cResEN.json();
+                
+                // 한자 감지 정규식
+                const isChinese = (str) => /[\u4e00-\u9fa5]/.test(str);
+                
+                const cDataMerged = cDataKO.results.map((item, idx) => {
+                    const enItem = cDataEN.results && cDataEN.results[idx] ? cDataEN.results[idx] : item;
+                    let finalTitle = item.name || item.title;
+                    let enTitle = enItem.name || enItem.title;
+                    
+                    // 제목에 한자가 포함되어 있고, 영어 제목이 존재하며, 영어 제목에 한자가 없을 경우 병기
+                    if (isChinese(finalTitle) && enTitle && !isChinese(enTitle)) {
+                         finalTitle = `${finalTitle} (${enTitle})`; 
+                    }
+                    return {...item, mergedTitle: finalTitle};
+                });
+
+                // 실시간 인기 한국 콘텐츠 (원어 ko)
+                const kRes = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=ko&sort_by=popularity.desc&page=1&language=ko-KR`);
+                const kData = await kRes.json();
+                const kDataMerged = kData.results.map(item => ({...item, mergedTitle: item.name || item.title}));
+
+                // 화면에 렌더링. 중국 드라마는 커스텀 '중드 전용 허브' 페이지로 링크 연결
+                renderGrid('cdrama-grid', cDataMerged.slice(0, 4), 'cdrama_hub.html', 'cdrama');
+                renderGrid('kdrama-grid', kDataMerged.slice(0, 4), 'https://www.netflix.com/search?q=', 'kdrama');
+                
+            } catch(e) {
+                console.error("그리드 연동 오류:", e);
+            }
+        }
+
+        function renderGrid(containerId, items, baseUrl, type) {
+            const container = document.getElementById(containerId);
+            if (!container || !items) return;
+
+            let html = items.map(item => {
+                const title = item.mergedTitle;
+                const imgUrl = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
+                
+                // 타입이 cdrama인 경우 전용 허브 사이트로 바로 이동하도록 링크 구성
+                let mainLink = `${baseUrl}?title=${encodeURIComponent(item.name || item.title)}`;
+                if (type !== 'cdrama') {
+                    mainLink = `${baseUrl}${encodeURIComponent(item.name || item.title)}`;
+                }
+                
+                const tagColorClass = type === 'cdrama' ? 'tag cdrama' : 'tag';
+                const mainTagText = type === 'cdrama' ? '#중드 전용관 가기' : '#K-드라마';
+                
+                // 태그별 커스텀 검색 링크
+                const mainTagLink = type === 'cdrama' ? 'cdrama_hub.html' : `${baseUrl}${encodeURIComponent('한국 드라마')}`;
+                const trendingTagLink = type === 'cdrama' ? 'cdrama_hub.html' : `${baseUrl}${encodeURIComponent('인기')}`;
+
+                return `
+                <div class="card">
+                    <a href="${type === 'cdrama' ? 'cdrama_hub.html' : mainLink}" target="${type === 'cdrama' ? '_self' : '_blank'}" ${type === 'cdrama' ? '' : 'onclick="checkPremiumAndRedirect(event, this.href)"'}>
+                        <img src="${imgUrl}" alt="${title}" style="object-position: top; width: 100%; height: 320px; object-fit: cover;">
+                    </a>
+                    <div class="card-info">
+                        <a href="${type === 'cdrama' ? 'cdrama_hub.html' : mainLink}" target="${type === 'cdrama' ? '_self' : '_blank'}" ${type === 'cdrama' ? '' : 'onclick="checkPremiumAndRedirect(event, this.href)"'} style="text-decoration: none; color: inherit;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${title}">${title}</h4>
+                        </a>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="${mainTagLink}" target="${type === 'cdrama' ? '_self' : '_blank'}" style="text-decoration: none;">
+                                <span class="${tagColorClass}">${mainTagText}</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function renderSlider() {
+            const hero = document.getElementById('hero');
+
+            let slidesHTML = mockSlides.map((item, idx) => {
+                // 넷플릭스 딥링크 생성 로직
+                const netflixLink = `https://www.netflix.com/search?q=${encodeURIComponent(item.title)}`;
+
+                return `
+                <div class="slide ${idx === 0 ? 'active' : ''}" style="background-image: url('${item.backdrop}'); z-index: ${idx === 0 ? 1 : 0};">
+                    <div class="slide-content">
+                        <a href="${netflixLink}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)" style="text-decoration: none; color: white;">
+                            <h1 style="display: inline-block; transition: 0.3s; cursor: pointer;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='white';">${item.title}</h1>
+                        </a>
+                        <p>${item.overview}</p>
+                        <div style="margin-top: 30px;">
+                            <a href="${netflixLink}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)"
+                               style="background: var(--primary); color: black; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1rem; display: inline-block; transition: 0.3s; transform: scale(1);" 
+                               onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';">지금 시청하기</a>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+
+            let dotsHTML = `<div class="slider-dots" id="sliderDots">
+                ${mockSlides.map((_, idx) => `<div class="dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide(${idx})"></div>`).join('')}
+            </div>`;
+
+            hero.innerHTML = slidesHTML + dotsHTML;
+        }
+
+        // 수익화(Monetization) & 권한 체크 로직 (예시)
+        function checkPremiumAndRedirect(event, url) {
+            // 실제 서비스 시엔 Firebase Auth & DB 조회 후 PayPal 결제 연동
+            const isPremium = false; // 현재 로그인 안 함 상태라고 가정
+            if (!isPremium) {
+                event.preventDefault(); // 다이렉트 이동 막기
+                alert("🔒 프리미엄 회원 전용 기능입니다! \n(여기서 PayPal 결제 팝업이나 Firebase 로그인 창이 뜹니다.)");
+                // 실제 연동 시: window.location.href = '/checkout' 
+            } else {
+                // 정상적으로 넘어감
+            }
+        }
+
+        function goToSlide(idx) {
+            currentSlide = idx;
+            updateSlide();
+        }
+
+        function updateSlide() {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === currentSlide);
+                s.style.zIndex = i === currentSlide ? 1 : 0;
+            });
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
