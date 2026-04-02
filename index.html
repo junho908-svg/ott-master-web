@@ -44,12 +44,18 @@
         .logo {
             display: flex;
             align-items: center;
-            height: 50px;
+            height: 80px; /* 기존 50px에서 대폭 확대 */
+            margin-right: 20px;
         }
         .logo img {
             height: 100%;
             width: auto;
             object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(0, 227, 253, 0.4)); /* 로고에 시안색 글로우 효과 추가 */
+            transition: transform 0.3s ease;
+        }
+        .logo img:hover {
+            transform: scale(1.05); /* 마우스 호버 시 살짝 커지는 효과 */
         }
 
         .search-bar {

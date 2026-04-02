@@ -43,19 +43,22 @@
         .logo {
             display: flex;
             align-items: center;
-            height: 50px;
+            height: 70px; /* 중드 전용관은 약간 슬림하게 70px */
             text-decoration: none;
+            margin-right: 15px;
         }
         .logo img {
             height: 100%;
             width: auto;
             object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255, 141, 178, 0.4)); /* 중드 핑크 테마 글로우 추가 */
         }
         .logo .hub-title {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: #fff;
-            font-weight: 400;
+            font-weight: 500;
             margin-left: 10px;
+            white-space: nowrap;
         }
 
         .hero-slider {
