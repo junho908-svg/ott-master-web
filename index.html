@@ -561,16 +561,12 @@
                     return {...item, mergedTitle: finalTitle, overview: finalOverview};
                 });
 
-                // 실시간 트렌딩 콘텐츠 (오늘의 인기 TV쇼)
-                const trendRes = await fetch(`https://api.themoviedb.org/3/trending/tv/day?api_key=${TMDB_API_KEY}&language=ko-KR`);
-                const trendData = await trendRes.json();
-                
-                // 한국 콘텐츠만 필터링 (원본 언어가 'ko')
-                const kDataMerged = trendData.results
-                    .filter(item => item.original_language === 'ko')
-                    .map(item => ({...item, mergedTitle: item.name || item.title}));
+                // 실시간 인기 한국 콘텐츠 (Discover API 사용 - 결과 보장)
+                const kRes = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=ko&sort_by=popularity.desc&page=1&language=ko-KR`);
+                const kData = await kRes.json();
+                const kDataMerged = kData.results.map(item => ({...item, mergedTitle: item.name || item.title}));
 
-                // 화면에 렌더링. 중국 드라마는 상위 6개, 한국 트렌딩은 상위 6개 노출
+                // 화면에 렌더링. 중국 드라마 및 한국 드라마 상위 6개씩 노출
                 renderGrid('cdrama-grid', cDataMerged.slice(0, 6), 'cdrama_hub.html', 'cdrama');
                 renderGrid('kdrama-grid', kDataMerged.slice(0, 6), 'https://www.netflix.com/search?q=', 'kdrama');
                 
