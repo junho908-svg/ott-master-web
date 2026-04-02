@@ -43,22 +43,59 @@
         .logo {
             display: flex;
             align-items: center;
-            height: 70px; /* 중드 전용관은 약간 슬림하게 70px */
             text-decoration: none;
-            margin-right: 15px;
+            gap: 14px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
-        .logo img {
-            height: 100%;
-            width: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 0 10px rgba(255, 141, 178, 0.4)); /* 중드 핑크 테마 글로우 추가 */
+        .logo:hover {
+            transform: scale(1.04);
+        }
+        .logo-symbol {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 141, 178, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary);
+            background: radial-gradient(circle, rgba(255,141,178,0.12) 0%, transparent 70%);
+            box-shadow: 0 0 18px rgba(255,141,178,0.25), inset 0 0 10px rgba(255,141,178,0.1);
+            text-shadow: 0 0 8px rgba(255,141,178,0.5);
+            flex-shrink: 0;
+        }
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .logo-text .brand-name {
+            font-size: 1.3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+        .logo-text .brand-sub {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 1.5px;
+            font-weight: 400;
+            margin-top: 2px;
         }
         .logo .hub-title {
-            font-size: 1.1rem;
-            color: #fff;
-            font-weight: 500;
-            margin-left: 10px;
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: 700;
             white-space: nowrap;
+            border-left: 2px solid rgba(255,141,178,0.4);
+            padding-left: 14px;
+            margin-left: 4px;
         }
 
         .hero-slider {
@@ -250,8 +287,12 @@
 
     <header>
         <a href="index.html" class="logo">
-            <img src="assets/dong_a_logo.png?v=3" alt="Dong-A OTT MASTER">
-            <span class="hub-title">/ C-Drama Hub</span>
+            <div class="logo-symbol">東</div>
+            <div class="logo-text">
+                <span class="brand-name">OTT MASTER</span>
+                <span class="brand-sub">powered by The Dong-A Ilbo</span>
+            </div>
+            <span class="hub-title">C-Drama Hub</span>
         </a>
         <div>
             <a href="index.html" style="color: white; text-decoration: none; font-weight: 700;">&larr; 홈으로 돌아가기</a>
