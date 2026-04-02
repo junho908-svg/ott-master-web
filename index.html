@@ -458,7 +458,14 @@
                     if (isChinese(finalTitle) && enTitle && !isChinese(enTitle)) {
                          finalTitle = `${finalTitle} (${enTitle})`; 
                     }
-                    return {...item, mergedTitle: finalTitle};
+
+                    // 한국어 줄거리가 비어있으면 영어 줄거리를 사용
+                    let finalOverview = item.overview;
+                    if (!finalOverview || finalOverview.trim() === '') {
+                        finalOverview = enItem.overview;
+                    }
+                    
+                    return {...item, mergedTitle: finalTitle, overview: finalOverview};
                 });
 
                 // 실시간 인기 한국 콘텐츠 (원어 ko)

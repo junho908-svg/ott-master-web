@@ -232,7 +232,13 @@
                 if (isChinese(finalTitle) && enTitle && !isChinese(enTitle)) {
                     finalTitle = `${finalTitle} (${enTitle})`;
                 }
-                return { ...item, mergedTitle: finalTitle };
+                
+                let finalOverview = item.overview;
+                if (!finalOverview || finalOverview.trim() === '') {
+                    finalOverview = enItem.overview;
+                }
+
+                return { ...item, mergedTitle: finalTitle, overview: finalOverview };
             }).filter(item => item.poster_path);
         }
 
