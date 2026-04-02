@@ -313,7 +313,7 @@
         <div class="logo">OTT MASTER</div>
         <div class="search-bar">
             <span>🔍</span>
-            <input type="text" placeholder="인생작을 검색해 보세요 (예: 더 글로리, 장야 ...)">
+            <input type="text" id="searchInput" placeholder="인생작을 검색해 보세요 (예: 더 글로리, 장야 ...)">
         </div>
         <div style="width: 50px;"></div> <!-- Spacer -->
     </header>
@@ -586,7 +586,22 @@
             dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
         }
 
-        document.addEventListener('DOMContentLoaded', initApp);
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+
+            // 검색 바 이벤트 리스너 추가
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const query = e.target.value.trim();
+                        if (query) {
+                            window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+                        }
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

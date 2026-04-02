@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - OTT MASTER</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-color: #0e0e11;
+            --primary: #df8eff;
+            --secondary: #00e3fd;
+            --surface: rgba(255, 255, 255, 0.05);
+            --glass-blur: blur(25px);
+            --text-main: #f0edf1;
+            --text-dim: #acaaae;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Pretendard', sans-serif;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 90%;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(14, 14, 17, 0.8) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: -1px;
+            text-decoration: none;
+        }
+
+        .search-bar {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 12px 25px;
+            width: 400px;
+            backdrop-filter: var(--glass-blur);
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+            font-size: 1rem;
+        }
+
+        .container {
+            padding: 120px 5% 50px 5%;
+            min-height: 70vh;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title span {
+            color: var(--primary);
+            margin-left: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+        }
+
+        /* --- Glass Cards --- */
+        .card {
+            background: var(--surface);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(223, 142, 255, 0.15);
+        }
+
+        .card img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover img {
+            transform: scale(1.05);
+        }
+
+        /* --- Hover Overlay (PiP) --- */
+        .card-img-wrapper {
+            position: relative;
+            display: block;
+            overflow: hidden;
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(14, 14, 17, 0.85);
+            color: #fff;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .card-overlay p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 8;
+            line-clamp: 8;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+        }
+
+        .card-info {
+            padding: 20px;
+        }
+
+        .card-info h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 100px 0;
+            font-size: 1.5rem;
+            color: var(--text-dim);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <a href="index.html" class="logo">OTT MASTER</a>
+        <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="다른 작품들도 검색해 보세요!">
+        </div>
+        <div>
+            <a href="index.html" style="color: white; text-decoration: none; font-weight: 700;">&larr; 홈으로 돌아가기</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="section-title" id="pageTitle">검색 중... <span></span></div>
+        <div id="search-grid" class="grid">
+            <!-- JS will inject search results here -->
+        </div>
+    </div>
+
+    <footer
+        style="padding: 50px 5%; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: var(--text-dim); font-size: 0.9rem; margin-top: 50px;">
+        &copy; 2026 OTT MASTER - Search. Produced by Mango special agent.
+    </footer>
+
+    <script>
+        const TMDB_API_KEY = "081adf5e23f22ccc0cfd852dde315657";
+
+        // URL 파라미터에서 검색어 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+
+        // 상단 바 검색 기능
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = query || ''; // 기존 검색어 유지
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const newQuery = e.target.value.trim();
+                    if (newQuery) {
+                        window.location.href = `search.html?q=${encodeURIComponent(newQuery)}`;
+                    }
+                }
+            });
+        }
+
+        async function fetchSearchResults() {
+            const pageTitle = document.getElementById('pageTitle');
+            const grid = document.getElementById('search-grid');
+
+            if (!query) {
+                pageTitle.innerHTML = '검색어를 입력해 주세요!';
+                return;
+            }
+
+            pageTitle.innerHTML = `"${query}" <span>검색 결과</span>`;
+
+            try {
+                // 한국어 및 영어 데이터 병합 요청
+                const resKO = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=ko-KR&page=1`);
+                const dataKO = await resKO.json();
+
+                const resEN = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=1`);
+                const dataEN = await resEN.json();
+
+                if (!dataKO.results || dataKO.results.length === 0) {
+                    grid.innerHTML = `<div class="no-results">"${query}"에 대한 검색 결과가 없습니다. 😢</div>`;
+                    return;
+                }
+
+                // 한자 감지 함수
+                const isChinese = (str) => /[\u4e00-\u9fa5]/.test(str);
+
+                const mergedResults = dataKO.results.map((item, idx) => {
+                    const enItem = dataEN.results && dataEN.results[idx] ? dataEN.results[idx] : item;
+                    let finalTitle = item.name || item.title;
+                    let enTitle = enItem.name || enItem.title;
+
+                    // 병합: 제목
+                    if (isChinese(finalTitle) && enTitle && !isChinese(enTitle)) {
+                         finalTitle = `${finalTitle} (${enTitle})`; 
+                    }
+
+                    // 병합: 줄거리 (한국어 없으면 영어로 대체)
+                    let finalOverview = item.overview;
+                    if (!finalOverview || finalOverview.trim() === '') {
+                        finalOverview = enItem.overview;
+                    }
+                    
+                    return {...item, mergedTitle: finalTitle, overview: finalOverview};
+                }).filter(item => item.poster_path); // 이미지가 있는 것만
+
+                if (mergedResults.length === 0) {
+                    grid.innerHTML = `<div class="no-results">"${query}"에 대한 관련 이미지를 찾을 수 없습니다. 😢</div>`;
+                    return;
+                }
+
+                renderSearchGrid(grid, mergedResults);
+
+            } catch (error) {
+                console.error("검색 중 오류 발생:", error);
+                grid.innerHTML = `<div class="no-results">검색 결과를 불러오는 데 실패했습니다. 잠시 후 다시 시도해 주세요.</div>`;
+            }
+        }
+
+        function renderSearchGrid(container, items) {
+            let html = items.map(item => {
+                const title = item.mergedTitle;
+                const imgUrl = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+                
+                // 검색 결과 클릭 시 넷플릭스로 딥링크 연결 시도 
+                // (아이치이는 검색 쿼리를 판단하기 복잡하므로 K-드라마처럼 기본적으로 넷플릭스 검색으로 유도)
+                const link = `https://www.netflix.com/search?q=${encodeURIComponent(item.name || item.title)}`;
+
+                return `
+                <div class="card">
+                    <a href="${link}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)" class="card-img-wrapper">
+                        <img src="${imgUrl}" alt="${title}">
+                        <div class="card-overlay">
+                            <p>${item.overview ? item.overview : '줄거리 정보가 제공되지 않았습니다.'}</p>
+                        </div>
+                    </a>
+                    <div class="card-info">
+                        <a href="${link}" target="_blank" onclick="checkPremiumAndRedirect(event, this.href)" style="text-decoration: none; color: inherit;">
+                            <h4 title="${title}">${title}</h4>
+                        </a>
+                        <!-- 태그 생략 (통합 검색 결과) -->
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function checkPremiumAndRedirect(event, url) {
+            const isPremium = false; // 현재 연동 전이므로 false 고정
+            if (!isPremium) {
+                event.preventDefault();
+                alert("🔒 프리미엄 회원 전용 기능입니다! \n(여기서 PayPal 결제 팝업이나 Firebase 로그인 창이 뜹니다.)");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchSearchResults);
+    </script>
+</body>
+
+</html>
